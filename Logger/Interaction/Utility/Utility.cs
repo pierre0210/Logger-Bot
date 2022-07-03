@@ -31,5 +31,23 @@ namespace Logger.Interaction.Utility
         {
             await RespondAsync(text);
         }
+
+        [SlashCommand("8ball", "8ball")]
+        public async Task EightBallAsync([Summary(description: "some question")] string question)
+        {
+            var replies = new List<string>();
+            replies.Add("當然!");
+            replies.Add("顯然否");
+            replies.Add("或許(?");
+            replies.Add("等等再問");
+            replies.Add("你為什麼不問問神奇海螺呢?");
+
+            string answer = replies[new Random().Next(replies.Count - 1)];
+
+            var answerEmbed = new EmbedBuilder()
+                .WithColor(Color.Gold)
+                .WithDescription($"**Q: {question}**\nA: {answer}");
+            await RespondAsync(embed: answerEmbed.Build());
+        }
     }
 }
