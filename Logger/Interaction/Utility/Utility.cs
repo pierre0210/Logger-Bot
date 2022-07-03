@@ -25,6 +25,7 @@ namespace Logger.Interaction.Utility
             await RespondAsync($"**Latency:** `{_client.Latency.ToString()}ms`");
         }
 
+        [DefaultMemberPermissions(GuildPermission.ManageMessages)]
         [SlashCommand("say", "say something")]
         public async Task SayAsync([Summary(description: "some text")] string text)
         {

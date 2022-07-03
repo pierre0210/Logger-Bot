@@ -13,7 +13,7 @@ namespace Logger.Interaction.Owner
     public class Owner : InteractionModuleBase<SocketInteractionContext>
     {
         [RequireOwner]
-        [DefaultMemberPermissions()]
+        [DefaultMemberPermissions(GuildPermission.Administrator)]
         [SlashCommand("shutdown", "shutdown the bot (bot owner only)")]
         public async Task ShutdownAsync()
         {
