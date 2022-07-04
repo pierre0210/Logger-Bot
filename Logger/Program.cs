@@ -4,8 +4,9 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
-using Logger.Interaction;
 using Microsoft.Extensions.DependencyInjection;
+using Logger.Interaction;
+using Logger.Interaction.Report;
 
 namespace Logger
 {
@@ -39,8 +40,9 @@ namespace Logger
             IServiceProvider iService = interactionServices.BuildServiceProvider();
             await iService.GetService<InteractionHandler>().InitializeAsync();
 
+#region EventHandler
             _client.Log += Log.Msg;
-
+            _client.ModalSubmitted += new ReportHandler(_client).SendReport;
             _client.Ready += async () =>
             {
                 try
@@ -55,13 +57,14 @@ namespace Logger
                     Log.Info("Registered global command!");
 #endif                
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     Log.Error("Failed to register command!");
                     Log.Error(ex.ToString());
                 }
                 isBotOn = true;
             };
+#endregion
 
             await _client.LoginAsync(TokenType.Bot, botConfig.BotToken);
             await _client.StartAsync();

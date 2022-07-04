@@ -12,6 +12,13 @@ namespace Logger.Interaction.Owner
 {
     public class Owner : InteractionModuleBase<SocketInteractionContext>
     {
+        private readonly DiscordSocketClient _client;
+
+        public Owner(DiscordSocketClient client)
+        {
+            _client = client;
+        }
+
         [RequireOwner]
         [SlashCommand("shutdown", "shutdown the bot (bot owner only)")]
         public async Task ShutdownAsync()

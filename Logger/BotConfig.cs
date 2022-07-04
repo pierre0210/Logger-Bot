@@ -10,7 +10,7 @@ namespace Logger
     public class BotConfig
     {
         public string BotToken { get; set; } = string.Empty;
-        public ulong OwnerGuild { get; set; }
+        public ulong OwnerGuild { get; set; } = ulong.MinValue;
 
         public void InitConfig()
         {
