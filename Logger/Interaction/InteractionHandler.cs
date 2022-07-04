@@ -30,7 +30,12 @@ namespace Logger.Interaction
                 services: _service);
             _client.InteractionCreated += (cmd) =>
             {
-                var _ = Task.Run(() => HandleInteraction(cmd));
+                Task.Run(() => HandleInteraction(cmd));
+                return Task.CompletedTask;
+            };
+            _client.SlashCommandExecuted += (cmd) =>
+            {
+                Task.Run(() => HandleExecutedCommand(cmd));
                 return Task.CompletedTask;
             };
         }
@@ -44,13 +49,18 @@ namespace Logger.Interaction
             }
             catch(Exception ex)
             {
-                Log.Error(ex.ToString());
+                await Log.Error(ex.ToString());
 
                 if(arg.Type == InteractionType.ApplicationCommand)
                 {
                     await arg.GetOriginalResponseAsync().ContinueWith(async (msg) => await msg.Result.DeleteAsync());
                 }
             }
+        }
+
+        private async Task HandleExecutedCommand(SocketSlashCommand cmd)
+        {
+            await Log.Info($"{cmd.User.Username} executed {cmd.Data.Name}");
         }
     }
 }

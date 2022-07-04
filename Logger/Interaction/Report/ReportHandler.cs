@@ -37,9 +37,9 @@ namespace Logger.Interaction.Report
 
                 var messageEmbed = new EmbedBuilder()
                     .WithColor(Color.DarkRed)
-                    .WithAuthor(authorName, iconUrl: authorAvatar)
+                    .WithAuthor($"{authorName} ({authorId})", iconUrl: authorAvatar)
                     .WithTitle("檢舉表單")
-                    .WithDescription($"**檢舉人ID：**{authorId}")
+                    //.WithDescription($"**檢舉人ID：**{authorId}")
                     .AddField("被檢舉人名稱：", $"{userName}", true).AddField("被檢舉人ID：", $"{userId}", true)
                     .AddField("檢舉事由：", detail)
                     .WithTimestamp(DateTime.Now);

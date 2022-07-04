@@ -51,7 +51,7 @@ namespace Logger
 #if DEBUG
                     ulong guildId = botConfig.OwnerGuild;
                     await interactionService.RegisterCommandsToGuildAsync(guildId);
-                    Log.Info("Registered guild command!");
+                    await Log.Info("Registered guild command!");
 #else
                     await interactionService.RegisterCommandsGloballyAsync();
                     Log.Info("Registered global command!");
@@ -59,8 +59,8 @@ namespace Logger
                 }
                 catch (Exception ex)
                 {
-                    Log.Error("Failed to register command!");
-                    Log.Error(ex.ToString());
+                    await Log.Error("Failed to register command!");
+                    await Log.Error(ex.ToString());
                 }
                 isBotOn = true;
             };
