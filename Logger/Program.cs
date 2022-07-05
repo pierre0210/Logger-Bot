@@ -5,6 +5,7 @@ using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
+using StackExchange.Redis;
 using Logger.Interaction;
 using Logger.Interaction.Report;
 
@@ -14,8 +15,23 @@ namespace Logger
     {
         private static DiscordSocketClient _client;
         public static bool isBotOn = false;
+        public static ConnectionMultiplexer Redis { get; set; }
+        public static IDatabase RedisDb { get; set; }
         static void Main(string[] args)
         {
+            try
+            {
+                RedisConnection.Init("localhost");
+                Redis = RedisConnection.Instance.multiplexer;
+                RedisDb = Redis.GetDatabase();
+                Log.Info("Redis connected!");
+            }
+            catch(Exception ex)
+            {
+                Log.Error("Failed to connect to Redis!");
+                Log.Error(ex.Message);
+                Environment.Exit(1);
+            }
             new Program().MainAsync().GetAwaiter().GetResult();
         }
 
@@ -60,7 +76,7 @@ namespace Logger
                 catch (Exception ex)
                 {
                     await Log.Error("Failed to register command!");
-                    await Log.Error(ex.ToString());
+                    await Log.Error(ex.Message);
                 }
                 isBotOn = true;
             };
