@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Logger;
+using Logger.Database;
 using Logger.Database.Table;
 
 namespace Logger.Interaction.Admin
@@ -27,14 +28,20 @@ namespace Logger.Interaction.Admin
         }
 
         [SlashCommand("setchannel", "set logging and report channel")]
-        public async Task SetLogAsync([Summary(description: "logging channel")] IChannel logChannel, [Summary(description: "report channel")] IChannel reportChannel)
+        public async Task SetChannelAsync([Summary(description: "logging channel")] IChannel logChannel, [Summary(description: "report channel")] IChannel reportChannel)
         {
-            GuildInfo info = new GuildInfo();
-            info.LogChannelId = logChannel.Id;
-            info.ReportChannelId = reportChannel.Id;
-            ulong key = Context.Guild.Id;
-            await new RedisUtility(Program.RedisDb).DbSetAsync<GuildInfo>(key.ToString(), info);
-            await RespondAsync("Done", ephemeral: true);
+            using(var db = new SQLiteContext())
+            {
+                GuildInfo info = new GuildInfo();
+                info.GuildId = Context.Guild.Id;
+                info.LogChannelId = logChannel.Id;
+                info.ReportChannelId = reportChannel.Id;
+                
+                db.GuildInfos.Add(info);
+                db.SaveChanges();
+                //await new RedisUtility(Program.RedisDb).DbSetAsync<GuildInfo>(key.ToString(), info);
+                await RespondAsync("Done", ephemeral: true);
+            }
         }
     }
 }

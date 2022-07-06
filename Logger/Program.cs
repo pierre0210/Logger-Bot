@@ -6,6 +6,7 @@ using Discord.Interactions;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using StackExchange.Redis;
+using Logger.Database;
 using Logger.Interaction;
 using Logger.Interaction.Report;
 
@@ -19,6 +20,11 @@ namespace Logger
         public static IDatabase RedisDb { get; set; }
         static void Main(string[] args)
         {
+            using(var db = new SQLiteContext())
+            {
+                db.Database.EnsureCreated();
+                Log.Info("SQLite database created!");
+            }
             try
             {
                 RedisConnection.Init("localhost");
