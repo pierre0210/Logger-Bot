@@ -36,9 +36,20 @@ namespace Logger.Interaction.Admin
                 info.GuildId = Context.Guild.Id;
                 info.LogChannelId = logChannel.Id;
                 info.ReportChannelId = reportChannel.Id;
+
+                var row = db.GuildInfos.Where(x => x.GuildId == info.GuildId).FirstOrDefault();
+                if(row == null)
+                {
+                    db.GuildInfos.Add(info);
+                    db.SaveChanges();
+                }
+                else
+                {
+                    row.LogChannelId = logChannel.Id;
+                    row.ReportChannelId= reportChannel.Id;
+                    db.SaveChanges();
+                }
                 
-                db.GuildInfos.Add(info);
-                db.SaveChanges();
                 //await new RedisUtility(Program.RedisDb).DbSetAsync<GuildInfo>(key.ToString(), info);
                 await RespondAsync("Done", ephemeral: true);
             }

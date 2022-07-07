@@ -25,6 +25,7 @@ namespace Logger
                 db.Database.EnsureCreated();
                 Log.Info("SQLite database created!");
             }
+            
             try
             {
                 RedisConnection.Init("localhost");
@@ -38,6 +39,7 @@ namespace Logger
                 Log.Error(ex.Message);
                 Environment.Exit(1);
             }
+            
             new Program().MainAsync().GetAwaiter().GetResult();
         }
 

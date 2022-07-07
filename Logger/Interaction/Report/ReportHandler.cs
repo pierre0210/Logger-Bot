@@ -6,6 +6,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Logger;
+using Logger.Database;
+using Logger.Database.Table;
 
 namespace Logger.Interaction.Report
 {
@@ -55,8 +58,12 @@ namespace Logger.Interaction.Report
 
                 await modal.DeferAsync(ephemeral: true);
 
-                await _client.GetGuild(guildId)
-                    .GetTextChannel(865430920215265290).SendMessageAsync(embed: messageEmbed.Build());
+                using(var db = new SQLiteContext())
+                {
+                    var row = db.GuildInfos.Where(x => x.GuildId == guildId).FirstOrDefault();
+                    await _client.GetGuild(guildId)
+                        .GetTextChannel(row.ReportChannelId).SendMessageAsync(embed: messageEmbed.Build());
+                }
             }
         }
     }
