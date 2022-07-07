@@ -48,5 +48,17 @@ namespace Logger.Interaction.Admin
                 await RespondAsync(text: "Done", ephemeral: true);
             }
         }
+
+        [SlashCommand("pingbonk", "BONK!")]
+        public async Task PingBonkAsync(IUser victim, int times, string msg = "")
+        {
+            await RespondAsync(text: "Start bonking!", ephemeral: true);
+            string bonk = $"<@{victim.Id}> {msg}";
+
+            for (int i = 0; i < times; i++)
+            {
+                await Context.Channel.SendMessageAsync(text: bonk);
+            }
+        }
     }
 }

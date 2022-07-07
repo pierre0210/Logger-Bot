@@ -18,6 +18,7 @@ namespace Logger
         public static bool isBotOn = false;
         public static ConnectionMultiplexer Redis { get; set; }
         public static IDatabase RedisDb { get; set; }
+        public static List<ulong> BlackList { get; set; } = new List<ulong>();
         static void Main(string[] args)
         {
             using(var db = new SQLiteContext())
@@ -67,6 +68,13 @@ namespace Logger
 #region EventHandler
             _client.Log += Log.Msg;
             _client.ModalSubmitted += new ReportHandler(_client).SendReport;
+            _client.MessageReceived += async (msg) =>
+            {
+                if (BlackList.Contains(msg.Author.Id))
+                {
+                    await msg.DeleteAsync();
+                }
+            };
             _client.Ready += async () =>
             {
                 try
