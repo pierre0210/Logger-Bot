@@ -49,7 +49,7 @@ namespace Logger.Interaction
             }
             catch(Exception ex)
             {
-                await Log.Error(ex.ToString());
+                await Logger.Log.Error(ex.ToString());
 
                 if(arg.Type == InteractionType.ApplicationCommand)
                 {
@@ -60,7 +60,7 @@ namespace Logger.Interaction
 
         private async Task HandleExecutedCommand(SocketSlashCommand cmd)
         {
-            await Log.Info($"{cmd.User.Username} executed {cmd.Data.Name}");
+            await Logger.Log.Info($"{cmd.User.Username} executed {cmd.Data.Name}");
         }
     }
 }

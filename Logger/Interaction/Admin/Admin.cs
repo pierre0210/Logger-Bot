@@ -1,12 +1,6 @@
 ﻿using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Logger;
 using Logger.Database;
 using Logger.Database.Table;
 
@@ -51,7 +45,7 @@ namespace Logger.Interaction.Admin
                 }
                 
                 //await new RedisUtility(Program.RedisDb).DbSetAsync<GuildInfo>(key.ToString(), info);
-                await RespondAsync("Done", ephemeral: true);
+                await RespondAsync(text: "Done", ephemeral: true);
             }
         }
     }
