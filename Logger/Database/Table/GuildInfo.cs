@@ -11,5 +11,6 @@ namespace Logger.Database.Table
         public ulong GuildId { get; set; }
         public ulong LogChannelId { get; set; }
         public ulong ReportChannelId { get; set; }
+        public bool MessageLog { get; set; } = false;
     }
 }

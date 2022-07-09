@@ -13,7 +13,7 @@ namespace Logger.Interaction.Logging
 {
     [DefaultMemberPermissions(GuildPermission.Administrator)]
     [Group("message-log", "message logging")]
-    public class Message
+    public class Message : InteractionModuleBase<SocketInteractionContext>
     {
         private readonly DiscordSocketClient _client;
         private readonly IServiceProvider _service;
@@ -29,13 +29,39 @@ namespace Logger.Interaction.Logging
         [SlashCommand("enable", "enable message logging")]
         public async Task EnableAsync()
         {
-
+            using(var db = new SQLiteContext())
+            {
+                var row = db.GuildInfos.Where(x => x.GuildId == Context.Guild.Id).FirstOrDefault();
+                if(row == null)
+                {
+                    await RespondAsync(text: "尚未設定頻道", ephemeral: true);
+                }
+                else
+                {
+                    row.MessageLog = true;
+                    db.SaveChanges();
+                    await RespondAsync(text: "開啟文字記錄功能");
+                }
+            }
         }
 
         [SlashCommand("disable", "disable message logging")]
         public async Task DisableAsync()
         {
-
+            using (var db = new SQLiteContext())
+            {
+                var row = db.GuildInfos.Where(x => x.GuildId == Context.Guild.Id).FirstOrDefault();
+                if (row == null)
+                {
+                    await RespondAsync(text: "尚未設定頻道", ephemeral: true);
+                }
+                else
+                {
+                    row.MessageLog = false;
+                    db.SaveChanges();
+                    await RespondAsync(text: "關閉文字記錄功能");
+                }
+            }
         }
     }
 }

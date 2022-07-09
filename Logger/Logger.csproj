@@ -28,8 +28,4 @@
     <PackageReference Include="StackExchange.Redis" Version="2.6.48" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Interaction\Logging\" />
-  </ItemGroup>
-
 </Project>

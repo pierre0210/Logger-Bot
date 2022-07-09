@@ -40,7 +40,7 @@ namespace Logger.Interaction.Admin
                 else
                 {
                     row.LogChannelId = logChannel.Id;
-                    row.ReportChannelId= reportChannel.Id;
+                    row.ReportChannelId = reportChannel.Id;
                     db.SaveChanges();
                 }
                 
