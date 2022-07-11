@@ -9,6 +9,7 @@ using StackExchange.Redis;
 using Logger.Database;
 using Logger.Interaction;
 using Logger.Interaction.Report;
+using Logger.Interaction.Logging;
 
 namespace Logger
 {
@@ -46,7 +47,18 @@ namespace Logger
 
         public async Task MainAsync()
         {
-            _client = new DiscordSocketClient();
+            _client = new DiscordSocketClient(
+                new DiscordSocketConfig
+                {
+#if DEBUG
+                    LogLevel = LogSeverity.Verbose,
+#else
+                    LogLevel = LogSeverity.Critical,
+#endif
+                    MessageCacheSize = 100,
+                    GatewayIntents = GatewayIntents.AllUnprivileged
+                }
+            );
             BotConfig botConfig = new();
             botConfig.InitConfig();
             var interactionServices = new ServiceCollection()
@@ -68,6 +80,7 @@ namespace Logger
 #region EventHandler
             _client.Log += Log.Msg;
             _client.ModalSubmitted += new ReportHandler(_client).SendReport;
+            _client.MessageDeleted += new MessageLogHandler(_client).SaveMessage;
             _client.MessageReceived += async (msg) =>
             {
                 if (BlackList.Contains(msg.Author.Id))
@@ -87,7 +100,7 @@ namespace Logger
 #else
                     await interactionService.RegisterCommandsGloballyAsync();
                     Log.Info("Registered global command!");
-#endif                
+#endif
                 }
                 catch (Exception ex)
                 {
