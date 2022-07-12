@@ -35,8 +35,8 @@ namespace Logger
                 return default(T);
             }
 
-            var str = _database.StringGetAsync(KeyGen(key, typeof(T)));
-            var result = JsonConvert.DeserializeObject<T>(str.ToString());
+            var str = await _database.StringGetAsync(KeyGen(key, typeof(T)));
+            var result = JsonConvert.DeserializeObject<T>(str.ToString().Replace("\uFEFF", ""));
             return result;
         }
 

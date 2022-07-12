@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Logger.Database.Table;
 
 namespace Logger.Interaction.Logging
 {
@@ -18,11 +19,23 @@ namespace Logger.Interaction.Logging
             _client = client;
         }
 
-        public async Task SaveMessage(Cacheable<IMessage, ulong> msgCache, Cacheable<IMessageChannel, ulong> channelCache)
+        public async Task LogDeleteMessage(Cacheable<IMessage, ulong> msgCache, Cacheable<IMessageChannel, ulong> channelCache)
         {
-            // Redis DB
             IMessage msg = msgCache.Value;
-            IMessageChannel messageChannel = channelCache.Value;
+            IMessageChannel msgChannel = channelCache.Value;
+            
+            RedisUtility utility = new RedisUtility(Program.RedisDb);
+            var guildChannel = msgChannel as IGuildChannel;
+            var row = utility.DbGetAsync<GuildInfo>($"{guildChannel.GuildId}");
+            if (row != null && msgChannel.Id != row.Result.LogChannelId)
+            {
+                if (row.Result.MessageLog)
+                {
+                    var logEmbed = new EmbedBuilder().WithTitle($"Message deleted in #{guildChannel.Name}").WithColor(Color.DarkRed)
+                    .WithAuthor(msg.Author).WithDescription(msg.Content).WithTimestamp(DateTime.Now).WithFooter($"ID: {msg.Author.Id}");
+                    await _client.GetGuild(guildChannel.GuildId).GetTextChannel(row.Result.LogChannelId).SendMessageAsync(embed: logEmbed.Build());
+                }
+            }
         }
     }
 }

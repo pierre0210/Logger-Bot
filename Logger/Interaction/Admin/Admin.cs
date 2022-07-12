@@ -26,14 +26,16 @@ namespace Logger.Interaction.Admin
         {
             using(var db = new SQLiteContext())
             {
-                GuildInfo info = new GuildInfo();
-                info.GuildId = Context.Guild.Id;
-                info.LogChannelId = logChannel.Id;
-                info.ReportChannelId = reportChannel.Id;
-
-                var row = db.GuildInfos.Where(x => x.GuildId == info.GuildId).FirstOrDefault();
+                var row = db.GuildInfos.Where(x => x.GuildId == Context.Guild.Id).FirstOrDefault();
                 if(row == null)
                 {
+                    GuildInfo info = new GuildInfo();
+                    info.GuildId = Context.Guild.Id;
+                    info.LogChannelId = logChannel.Id;
+                    info.ReportChannelId = reportChannel.Id;
+
+                    RedisUtility utility = new RedisUtility(Program.RedisDb);
+                    await utility.DbSetAsync<GuildInfo>($"{Context.Guild.Id}", info);
                     db.GuildInfos.Add(info);
                     db.SaveChanges();
                 }
@@ -41,6 +43,9 @@ namespace Logger.Interaction.Admin
                 {
                     row.LogChannelId = logChannel.Id;
                     row.ReportChannelId = reportChannel.Id;
+                    RedisUtility utility = new RedisUtility(Program.RedisDb);
+                    await utility.DbDelAsync<GuildInfo>($"{Context.Guild.Id}");
+                    await utility.DbSetAsync<GuildInfo>($"{Context.Guild.Id}", row);
                     db.SaveChanges();
                 }
                 

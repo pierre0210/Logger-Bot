@@ -39,6 +39,9 @@ namespace Logger.Interaction.Logging
                 else
                 {
                     row.MessageLog = true;
+                    RedisUtility utility = new RedisUtility(Program.RedisDb);
+                    await utility.DbDelAsync<GuildInfo>($"{Context.Guild.Id}");
+                    await utility.DbSetAsync<GuildInfo>($"{Context.Guild.Id}", row);
                     db.SaveChanges();
                     await RespondAsync(text: "開啟文字記錄功能");
                 }
@@ -58,6 +61,9 @@ namespace Logger.Interaction.Logging
                 else
                 {
                     row.MessageLog = false;
+                    RedisUtility utility = new RedisUtility(Program.RedisDb);
+                    await utility.DbDelAsync<GuildInfo>($"{Context.Guild.Id}");
+                    await utility.DbSetAsync<GuildInfo>($"{Context.Guild.Id}", row);
                     db.SaveChanges();
                     await RespondAsync(text: "關閉文字記錄功能");
                 }

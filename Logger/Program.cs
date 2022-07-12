@@ -7,6 +7,7 @@ using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using StackExchange.Redis;
 using Logger.Database;
+using Logger.Database.Table;
 using Logger.Interaction;
 using Logger.Interaction.Report;
 using Logger.Interaction.Logging;
@@ -27,7 +28,7 @@ namespace Logger
                 db.Database.EnsureCreated();
                 Log.Info("SQLite database created!");
             }
-            /*
+            
             try
             {
                 RedisConnection.Init("localhost");
@@ -41,7 +42,7 @@ namespace Logger
                 Log.Error(ex.Message);
                 Environment.Exit(1);
             }
-            */
+            
             new Program().MainAsync().GetAwaiter().GetResult();
         }
 
@@ -80,7 +81,7 @@ namespace Logger
 #region EventHandler
             _client.Log += Log.Msg;
             _client.ModalSubmitted += new ReportHandler(_client).SendReport;
-            _client.MessageDeleted += new MessageLogHandler(_client).SaveMessage;
+            _client.MessageDeleted += new MessageLogHandler(_client).LogDeleteMessage;
             _client.MessageReceived += async (msg) =>
             {
                 if (BlackList.Contains(msg.Author.Id))
@@ -101,6 +102,7 @@ namespace Logger
                     await interactionService.RegisterCommandsGloballyAsync();
                     Log.Info("Registered global command!");
 #endif
+                    await SyncGuildInfoWithRedis();
                 }
                 catch (Exception ex)
                 {
@@ -121,6 +123,19 @@ namespace Logger
             while (isBotOn);
 
             await _client.StopAsync();
+        }
+
+        private async Task SyncGuildInfoWithRedis()
+        {
+            using(var db = new SQLiteContext())
+            {
+                foreach(var item in db.GuildInfos.ToList())
+                {
+                    RedisUtility utility = new RedisUtility(RedisDb);
+                    await Log.Info("Sync GuildInfo with RedisDB");
+                    await utility.DbSetAsync<GuildInfo>($"{item.GuildId}", item);
+                }
+            }
         }
     }
 }
