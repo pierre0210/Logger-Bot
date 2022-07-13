@@ -1,6 +1,7 @@
 # Logger-Bot
 ## Features
-* Message Logger
+* Text Message Logger
+* Attachment Logger (working on it)
 * Ping BONK
 * coming soon
 ## Requirements
