@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Discord;
@@ -21,8 +22,13 @@ namespace Logger
         public static ConnectionMultiplexer Redis { get; set; }
         public static IDatabase RedisDb { get; set; }
         public static List<ulong> BlackList { get; set; } = new List<ulong>();
+        public static string TempFolderPath { get; set; }
         static void Main(string[] args)
         {
+            TempFolderPath = Path.Join(Directory.GetCurrentDirectory(), "Temp");
+            Directory.CreateDirectory(TempFolderPath);
+            Log.Info("Temp folder created!");
+
             using(var db = new SQLiteContext())
             {
                 db.Database.EnsureCreated();
@@ -56,7 +62,7 @@ namespace Logger
 #else
                     LogLevel = LogSeverity.Critical,
 #endif
-                    MessageCacheSize = 100,
+                    MessageCacheSize = 500,
                     GatewayIntents = GatewayIntents.AllUnprivileged
                 }
             );
