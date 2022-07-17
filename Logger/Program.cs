@@ -88,6 +88,7 @@ namespace Logger
             _client.Log += Log.Msg;
             _client.ModalSubmitted += new ReportHandler(_client).SendReport;
             _client.MessageDeleted += new MessageLogHandler(_client).LogDeleteMessage;
+            _client.MessageUpdated += new MessageLogHandler(_client).LogUpdateMessage;
             _client.MessageReceived += async (msg) =>
             {
                 if (BlackList.Contains(msg.Author.Id))
