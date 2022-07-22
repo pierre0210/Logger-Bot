@@ -46,7 +46,7 @@ namespace Logger.Interaction.Reminder
             await utility.DbSetAsync($"{Context.User.Id}:{index}", reminder);
             await RespondAsync($"提醒 **{Context.User.Username}** {content}", ephemeral: true);
             //TimerCallback callback = new TimerCallback(_todo);
-            _timer = new Timer(async x => await _todo(x, Context.User.Id, index), null, 0, reminder.Duration * 1000);
+            _timer = new Timer(async x => await _todo(x, Context.User.Id, index), null, reminder.Duration * 1000, Timeout.Infinite);
         }
 
         private async Task _todo(object x, ulong userId, int index)
@@ -54,7 +54,8 @@ namespace Logger.Interaction.Reminder
             _timer.Change(Timeout.Infinite, Timeout.Infinite);
             RedisUtility utility = new RedisUtility(Program.RedisDb);
             var row = await utility.DbGetAsync<Database.Table.Reminder>($"{userId}:{index}");
-            var channel = await _client.GetDMChannelAsync(row.UserId);
+            var user = await _client.GetUserAsync(userId);
+            var channel = await user.CreateDMChannelAsync();
             await channel.SendMessageAsync(row.Content);
             await utility.DbDelAsync<Database.Table.Reminder>($"{userId}:{index}");
         }
