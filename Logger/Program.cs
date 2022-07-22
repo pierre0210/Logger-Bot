@@ -21,6 +21,7 @@ namespace Logger
         public static bool isBotOn = false;
         public static ConnectionMultiplexer Redis { get; set; }
         public static IDatabase RedisDb { get; set; }
+        public static IServer RedisServer { get; set; }
         public static List<ulong> BlackList { get; set; } = new List<ulong>();
         public static string TempFolderPath { get; set; }
         static void Main(string[] args)
@@ -40,6 +41,7 @@ namespace Logger
                 RedisConnection.Init("localhost");
                 Redis = RedisConnection.Instance.multiplexer;
                 RedisDb = Redis.GetDatabase();
+                RedisServer = Redis.GetServer(Redis.GetEndPoints().First());
                 Log.Info("Redis connected!");
             }
             catch(Exception ex)

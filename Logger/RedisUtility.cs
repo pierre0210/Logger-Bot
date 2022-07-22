@@ -44,5 +44,11 @@ namespace Logger
         {
             await _database.KeyDeleteAsync(KeyGen(key, typeof(T)));
         }
+
+        public async Task<bool> DbExistsAsync<T>(string key)
+        {
+            bool state = await _database.KeyExistsAsync(KeyGen(key, typeof(T)));
+            return state;
+        }
     }
 }
