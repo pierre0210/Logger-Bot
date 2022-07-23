@@ -40,6 +40,17 @@ namespace Logger
             return result;
         }
 
+        public async Task<T> DbGetWithFullnameAsync<T>(string key)
+        {
+            if(!await _database.KeyExistsAsync(key))
+            {
+                return default(T);
+            }
+            var str = await _database.StringGetAsync(key);
+            var result = JsonConvert.DeserializeObject<T>(str.ToString().Replace("\uFEFF", ""));
+            return result;
+        }
+
         public async Task DbDelAsync<T>(string key)
         {
             await _database.KeyDeleteAsync(KeyGen(key, typeof(T)));

@@ -44,20 +44,64 @@ namespace Logger.Interaction.Reminder
                 if(!await utility.DbExistsAsync<Database.Table.Reminder>($"{Context.User.Id}:{index}")) break;
             }
             await utility.DbSetAsync($"{Context.User.Id}:{index}", reminder);
-            await RespondAsync($"提醒 **{Context.User.Username}** {content}", ephemeral: true);
+            await RespondAsync($"提醒 **{Context.User.Username}** {content}");
             //TimerCallback callback = new TimerCallback(_todo);
             _timer = new Timer(async x => await _todo(x, Context.User.Id, index), null, reminder.Duration * 1000, Timeout.Infinite);
+        }
+
+        [SlashCommand("list", "list all reminder")]
+        public async Task ListAsync()
+        {
+            RedisUtility utility = new RedisUtility(Program.RedisDb);
+            var allkeys = Program.RedisServer.Keys(pattern: $"{typeof(Database.Table.Reminder).FullName}:{Context.User.Id}:*");
+            string keyList = String.Empty;
+            foreach(var key in allkeys.Reverse())
+            {
+                string index = key.ToString().Split(":")[2]; // type:userId:index
+                var row = await utility.DbGetWithFullnameAsync<Database.Table.Reminder>(key.ToString());
+                keyList += $"[{index}] {row.Content}\n";
+            }
+            if(keyList.Length > 0)
+            {
+                EmbedBuilder keyEmbed = new EmbedBuilder().WithColor(Color.DarkRed)
+                    .WithDescription($"```\n{keyList}```").WithAuthor(Context.User).WithTimestamp(DateTime.Now);
+                await RespondAsync(embed: keyEmbed.Build());
+            }
+            else
+            {
+                EmbedBuilder keyEmbed = new EmbedBuilder().WithColor(Color.DarkRed)
+                    .WithDescription("**Empty**").WithAuthor(Context.User).WithTimestamp(DateTime.Now);
+                await RespondAsync(embed: keyEmbed.Build());
+            }
+        }
+
+        [SlashCommand("delete", "delete reminder")]
+        public async Task DelAsync([Summary(description: "編號 可用list指令查詢")]int index)
+        {
+            RedisUtility utility = new RedisUtility(Program.RedisDb);
+            if(await utility.DbExistsAsync<Database.Table.Reminder>($"{Context.User.Id}:{index}"))
+            {
+                await utility.DbDelAsync<Database.Table.Reminder>($"{Context.User.Id}:{index}");
+                await RespondAsync($"提醒(編號：{index})已刪除");
+            }
+            else
+            {
+                await RespondAsync("查無此編號");
+            }
         }
 
         private async Task _todo(object x, ulong userId, int index)
         {
             _timer.Change(Timeout.Infinite, Timeout.Infinite);
             RedisUtility utility = new RedisUtility(Program.RedisDb);
-            var row = await utility.DbGetAsync<Database.Table.Reminder>($"{userId}:{index}");
-            var user = await _client.GetUserAsync(userId);
-            var channel = await user.CreateDMChannelAsync();
-            await channel.SendMessageAsync(row.Content);
-            await utility.DbDelAsync<Database.Table.Reminder>($"{userId}:{index}");
+            if(await utility.DbExistsAsync<Database.Table.Reminder>($"{userId}:{index}"))
+            {
+                var row = await utility.DbGetAsync<Database.Table.Reminder>($"{userId}:{index}");
+                var user = await _client.GetUserAsync(userId);
+                var channel = await user.CreateDMChannelAsync();
+                await channel.SendMessageAsync(row.Content);
+                await utility.DbDelAsync<Database.Table.Reminder>($"{userId}:{index}");
+            }
         }
     }
 }
