@@ -24,7 +24,7 @@ namespace Logger.Interaction.Owner
             Program.isBotOn = false;
         }
 
-        [DefaultMemberPermissions(GuildPermission.Administrator)]
+        //[DefaultMemberPermissions(GuildPermission.Administrator)]
         [RequireOwner]
         [SlashCommand("ultmute", "ultimate mute command")]
         public async Task UltMuteAsync(IGuildUser user, int minutes)
