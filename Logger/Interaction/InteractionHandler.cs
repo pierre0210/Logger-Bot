@@ -8,7 +8,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-#https://discordnet.dev/guides/text_commands/dependency-injection.html
+// https://discordnet.dev/guides/text_commands/dependency-injection.html
 
 namespace Logger.Interaction
 {

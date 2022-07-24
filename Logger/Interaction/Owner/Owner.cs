@@ -1,13 +1,14 @@
 ﻿using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
+using System.Threading;
 
 namespace Logger.Interaction.Owner
 {
     public class Owner : InteractionModuleBase<SocketInteractionContext>
     {
         private readonly DiscordSocketClient _client;
-        private static System.Timers.Timer _timer;
+        private static Timer _timer;
 
         public Owner(DiscordSocketClient client)
         {
@@ -33,18 +34,15 @@ namespace Logger.Interaction.Owner
                 .WithDescription($"<@{user.Id}> 哈哈去新疆");
             await RespondAsync(text: "Muted", ephemeral: true);
             await Context.Channel.SendMessageAsync(embed: post.Build());
-            _timer = new System.Timers.Timer(minutes * 60 * 1000);
-            _timer.Elapsed += (sender, args) =>
-            {
-                var releasePost = new EmbedBuilder().WithColor(Color.DarkGreen)
-                    .WithDescription($"<@{user.Id}> 出獄");
-                Context.Channel.SendMessageAsync(embed: releasePost.Build());
-                Program.BlackList.Remove(user.Id);
-                _timer.Stop();
-                _timer.Dispose();
-            };
-            _timer.Enabled = true;
-            
+            _timer = new Timer(async x => await _unban(x, Context.User.Id, Context), null, minutes * 60 * 1000, Timeout.Infinite);
+        }
+
+        private async Task _unban(object x, ulong userId, SocketInteractionContext context)
+        {
+            var releasePost = new EmbedBuilder().WithColor(Color.DarkGreen)
+                .WithDescription($"<@{userId}> 出獄");
+            await context.Channel.SendMessageAsync(embed: releasePost.Build());
+            Program.BlackList.Remove(userId);
         }
     }
 }
