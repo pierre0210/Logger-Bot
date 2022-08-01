@@ -21,8 +21,8 @@ namespace Logger.Interaction.Admin
             _interaction = interaction;
         }
 
-        [SlashCommand("setchannel", "set logging and report channel")]
-        public async Task SetChannelAsync([Summary(description: "logging channel")] IChannel logChannel, [Summary(description: "report channel")] IChannel reportChannel)
+        [SlashCommand("set-log-channel", "設定記錄頻道")]
+        public async Task SetLogChannelAsync([Summary(description: "logging channel")] IChannel logChannel)
         {
             using(var db = new SQLiteContext())
             {
@@ -32,7 +32,6 @@ namespace Logger.Interaction.Admin
                     GuildInfo info = new GuildInfo();
                     info.GuildId = Context.Guild.Id;
                     info.LogChannelId = logChannel.Id;
-                    info.ReportChannelId = reportChannel.Id;
 
                     RedisUtility utility = new RedisUtility(Program.RedisDb);
                     await utility.DbSetAsync<GuildInfo>($"{Context.Guild.Id}", info);
@@ -42,13 +41,43 @@ namespace Logger.Interaction.Admin
                 else
                 {
                     row.LogChannelId = logChannel.Id;
-                    row.ReportChannelId = reportChannel.Id;
                     RedisUtility utility = new RedisUtility(Program.RedisDb);
                     await utility.DbDelAsync<GuildInfo>($"{Context.Guild.Id}");
                     await utility.DbSetAsync<GuildInfo>($"{Context.Guild.Id}", row);
                     db.SaveChanges();
                 }
                 
+                //await new RedisUtility(Program.RedisDb).DbSetAsync<GuildInfo>(key.ToString(), info);
+                await RespondAsync(text: "Done", ephemeral: true);
+            }
+        }
+
+        [SlashCommand("set-report-channel", "設定檢舉頻道")]
+        public async Task SetReportChannelAsync([Summary(description: "report channel")] IChannel reportChannel)
+        {
+            using (var db = new SQLiteContext())
+            {
+                var row = db.GuildInfos.Where(x => x.GuildId == Context.Guild.Id).FirstOrDefault();
+                if (row == null)
+                {
+                    GuildInfo info = new GuildInfo();
+                    info.GuildId = Context.Guild.Id;
+                    info.ReportChannelId = reportChannel.Id;
+
+                    RedisUtility utility = new RedisUtility(Program.RedisDb);
+                    await utility.DbSetAsync<GuildInfo>($"{Context.Guild.Id}", info);
+                    db.GuildInfos.Add(info);
+                    db.SaveChanges();
+                }
+                else
+                {
+                    row.ReportChannelId = reportChannel.Id;
+                    RedisUtility utility = new RedisUtility(Program.RedisDb);
+                    await utility.DbDelAsync<GuildInfo>($"{Context.Guild.Id}");
+                    await utility.DbSetAsync<GuildInfo>($"{Context.Guild.Id}", row);
+                    db.SaveChanges();
+                }
+
                 //await new RedisUtility(Program.RedisDb).DbSetAsync<GuildInfo>(key.ToString(), info);
                 await RespondAsync(text: "Done", ephemeral: true);
             }

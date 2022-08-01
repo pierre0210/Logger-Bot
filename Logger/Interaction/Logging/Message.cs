@@ -34,7 +34,7 @@ namespace Logger.Interaction.Logging
                 var row = db.GuildInfos.Where(x => x.GuildId == Context.Guild.Id).FirstOrDefault();
                 if(row == null)
                 {
-                    await RespondAsync(text: "尚未設定頻道", ephemeral: true);
+                    await RespondAsync(text: "此伺服器未設定紀錄頻道", ephemeral: true);
                 }
                 else
                 {
@@ -56,7 +56,7 @@ namespace Logger.Interaction.Logging
                 var row = db.GuildInfos.Where(x => x.GuildId == Context.Guild.Id).FirstOrDefault();
                 if (row == null)
                 {
-                    await RespondAsync(text: "尚未設定頻道", ephemeral: true);
+                    await RespondAsync(text: "此伺服器未設定紀錄頻道", ephemeral: true);
                 }
                 else
                 {

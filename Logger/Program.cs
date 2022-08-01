@@ -62,7 +62,7 @@ namespace Logger
 #if DEBUG
                     LogLevel = LogSeverity.Verbose,
 #else
-                    LogLevel = LogSeverity.Info,
+                    LogLevel = LogSeverity.Verbose,
 #endif
                     MessageCacheSize = 500,
                     GatewayIntents = GatewayIntents.AllUnprivileged
@@ -109,7 +109,7 @@ namespace Logger
                     await Log.Info("Registered guild command!");
 #else
                     await interactionService.RegisterCommandsGloballyAsync();
-                    Log.Info("Registered global command!");
+                    await Log.Info("Registered global command!");
 #endif
                     await SyncGuildInfoWithRedis();
                 }

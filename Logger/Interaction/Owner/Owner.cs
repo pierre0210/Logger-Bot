@@ -34,7 +34,7 @@ namespace Logger.Interaction.Owner
                 .WithDescription($"<@{user.Id}> 哈哈去新疆");
             await RespondAsync(text: "Muted", ephemeral: true);
             await Context.Channel.SendMessageAsync(embed: post.Build());
-            _timer = new Timer(async x => await _unban(x, Context.User.Id, Context), null, minutes * 60 * 1000, Timeout.Infinite);
+            _timer = new Timer(async x => await _unban(x, user.Id, Context), null, minutes * 60 * 1000, Timeout.Infinite);
         }
 
         private async Task _unban(object x, ulong userId, SocketInteractionContext context)
