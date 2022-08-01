@@ -29,7 +29,8 @@ namespace Logger.Interaction.Utility
         [SlashCommand("say", "say something")]
         public async Task SayAsync([Summary(description: "some text")] string text)
         {
-            await RespondAsync(text);
+            await RespondAsync(text: "Done", ephemeral: true);
+            await Context.Channel.SendMessageAsync(text);
         }
 
         [SlashCommand("8ball", "8ball")]

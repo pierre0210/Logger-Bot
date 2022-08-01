@@ -37,6 +37,17 @@ namespace Logger.Interaction.Owner
             _timer = new Timer(async x => await _unban(x, user.Id, Context), null, minutes * 60 * 1000, Timeout.Infinite);
         }
 
+        [RequireOwner]
+        [SlashCommand("embed", "create embed message")]
+        public async Task EmbedAsync(string title, string description, UInt32 color, bool isTimestamp, IUser user)
+        {
+            var embed = new EmbedBuilder().WithTitle(title).WithDescription(description).WithColor(new Color(color))
+                .WithAuthor(user);
+            if(isTimestamp) embed.Timestamp = DateTime.Now;
+            await RespondAsync(text: "Muted", ephemeral: true);
+            await Context.Channel.SendMessageAsync(embed: embed.Build());
+        }
+
         private async Task _unban(object x, ulong userId, SocketInteractionContext context)
         {
             var releasePost = new EmbedBuilder().WithColor(Color.DarkGreen)
