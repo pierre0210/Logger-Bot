@@ -49,6 +49,8 @@ namespace Logger.Interaction.Reminder
             _timer = new Timer(async x => await _todo(x, Context.User.Id, index), null, reminder.Duration * 1000, Timeout.Infinite);
         }
 
+        [RequireOwner]
+        [DefaultMemberPermissions(GuildPermission.Administrator)]
         [SlashCommand("list", "list all reminder")]
         public async Task ListAsync()
         {
@@ -75,6 +77,8 @@ namespace Logger.Interaction.Reminder
             }
         }
 
+        [RequireOwner]
+        [DefaultMemberPermissions(GuildPermission.Administrator)]
         [SlashCommand("delete", "delete reminder")]
         public async Task DelAsync([Summary(description: "編號 可用list指令查詢")]int index)
         {

@@ -28,12 +28,12 @@ namespace Logger
         {
             TempFolderPath = Path.Join(Directory.GetCurrentDirectory(), "Temp");
             Directory.CreateDirectory(TempFolderPath);
-            Log.Info("Temp folder created!");
+            Log.Info($"{TempFolderPath} folder created!");
 
             using(var db = new SQLiteContext())
             {
                 db.Database.EnsureCreated();
-                Log.Info("SQLite database created!");
+                Log.Info($"{db.DbPath} SQLite database created!");
             }
             
             try
@@ -62,7 +62,7 @@ namespace Logger
 #if DEBUG
                     LogLevel = LogSeverity.Verbose,
 #else
-                    LogLevel = LogSeverity.Critical,
+                    LogLevel = LogSeverity.Info,
 #endif
                     MessageCacheSize = 500,
                     GatewayIntents = GatewayIntents.AllUnprivileged
