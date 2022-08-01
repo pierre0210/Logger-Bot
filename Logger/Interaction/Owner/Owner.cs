@@ -44,7 +44,7 @@ namespace Logger.Interaction.Owner
             var embed = new EmbedBuilder().WithTitle(title).WithDescription(description).WithColor(new Color(color))
                 .WithAuthor(user);
             if(isTimestamp) embed.Timestamp = DateTime.Now;
-            await RespondAsync(text: "Muted", ephemeral: true);
+            await RespondAsync(text: "Done", ephemeral: true);
             await Context.Channel.SendMessageAsync(embed: embed.Build());
         }
 
