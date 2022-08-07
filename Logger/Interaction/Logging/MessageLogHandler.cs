@@ -87,7 +87,7 @@ namespace Logger.Interaction.Logging
             RedisUtility utility = new RedisUtility(Program.RedisDb);
             var row = await utility.DbGetAsync<GuildInfo>($"{guildChannel.GuildId}");
 
-            if(row != null && channel.Id != row.LogChannelId)
+            if(row != null && channel.Id != row.LogChannelId && !oldMsg.Content.Equals(msg.Content))
             {
                 if(row.MessageLog)
                 {
