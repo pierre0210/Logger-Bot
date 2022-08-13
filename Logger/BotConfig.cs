@@ -7,30 +7,30 @@ using Newtonsoft.Json;
 
 namespace Logger
 {
-    public class BotConfig
-    {
-        public string BotToken { get; set; } = string.Empty;
-        public ulong OwnerGuild { get; set; } = ulong.MinValue;
+	public class BotConfig
+	{
+		public string BotToken { get; set; } = string.Empty;
+		public ulong OwnerGuild { get; set; } = ulong.MinValue;
 
-        public void InitConfig()
-        {
-            try
-            {
-                File.WriteAllText("example.config.json", JsonConvert.SerializeObject(new BotConfig(), Formatting.Indented));
-            }
-            catch(Exception ex) 
-            {
-                Log.Error(ex.Message);
-            }
-            if(!File.Exists("config.json"))
-            {
-                Log.Error("File config.json doesn't exist.");
-                Environment.Exit(3);
-            }
-            
-            var config = JsonConvert.DeserializeObject<BotConfig>(File.ReadAllText("config.json"));
-            BotToken = config.BotToken;
-            OwnerGuild = config.OwnerGuild;
-        }
-    }
+		public void InitConfig()
+		{
+			try
+			{
+				File.WriteAllText("example.config.json", JsonConvert.SerializeObject(new BotConfig(), Formatting.Indented));
+			}
+			catch(Exception ex) 
+			{
+				Log.Error(ex.Message);
+			}
+			if(!File.Exists("config.json"))
+			{
+				Log.Error("File config.json doesn't exist.");
+				Environment.Exit(3);
+			}
+			
+			var config = JsonConvert.DeserializeObject<BotConfig>(File.ReadAllText("config.json"));
+			BotToken = config.BotToken;
+			OwnerGuild = config.OwnerGuild;
+		}
+	}
 }

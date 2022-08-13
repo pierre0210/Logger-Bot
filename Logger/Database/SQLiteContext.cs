@@ -8,22 +8,22 @@ using Logger.Database.Table;
 
 namespace Logger.Database
 {
-    public class SQLiteContext : DbContext
-    {
-        public DbSet<GuildInfo> GuildInfos { get; set; }
+	public class SQLiteContext : DbContext
+	{
+		public DbSet<GuildInfo> GuildInfos { get; set; }
 
-        public string DbPath { get; }
+		public string DbPath { get; }
 
-        public SQLiteContext()
-        {
-            var folder = Environment.SpecialFolder.LocalApplicationData;
-            var path = Environment.GetFolderPath(folder);
-            DbPath = System.IO.Path.Join(path, "Database.db");
-        }
+		public SQLiteContext()
+		{
+			var folder = Environment.SpecialFolder.LocalApplicationData;
+			var path = Environment.GetFolderPath(folder);
+			DbPath = System.IO.Path.Join(path, "Database.db");
+		}
 
-        protected override void OnConfiguring(DbContextOptionsBuilder options)
-        {
-            options.UseSqlite($"Data Source={DbPath}");
-        }
-    }
+		protected override void OnConfiguring(DbContextOptionsBuilder options)
+		{
+			options.UseSqlite($"Data Source={DbPath}");
+		}
+	}
 }

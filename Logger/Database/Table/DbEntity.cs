@@ -7,9 +7,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Logger.Database.Table
 {
-    public class DbEntity
-    {
-        [Key]
-        public int Id { get; set; }
-    }
+	public class DbEntity
+	{
+		[Key]
+		public int Id { get; set; }
+	}
 }
