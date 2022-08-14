@@ -22,7 +22,6 @@ namespace Logger
 		public static ConnectionMultiplexer Redis { get; set; }
 		public static IDatabase RedisDb { get; set; }
 		public static IServer RedisServer { get; set; }
-		public static List<ulong> BlackList { get; set; } = new List<ulong>();
 		public static string TempFolderPath { get; set; }
 		static void Main(string[] args)
 		{
@@ -91,12 +90,46 @@ namespace Logger
 			_client.ModalSubmitted += new ReportHandler(_client).SendReport;
 			_client.MessageDeleted += new MessageLogHandler(_client).LogDeleteMessage;
 			_client.MessageUpdated += new MessageLogHandler(_client).LogUpdateMessage;
-			_client.MessageReceived += async (msg) =>
+			_client.UserVoiceStateUpdated += (user, oldState, newState) =>
 			{
-				if (BlackList.Contains(msg.Author.Id))
+				Task.Run(async () => 
 				{
-					await msg.DeleteAsync();
-				}
+					RedisUtility utility = new RedisUtility(RedisDb);
+					if (newState.VoiceChannel != null && newState.VoiceChannel != oldState.VoiceChannel)
+					{
+						var guildUser = user as SocketGuildUser;
+						if (await utility.DbExistsAsync<BlackList>($"{guildUser.Guild.Id}:{user.Id}"))
+						{
+							await guildUser.ModifyAsync(u =>
+							{
+								u.Mute = true;
+							});
+						}
+						else if (guildUser.IsMuted)
+						{
+							await guildUser.ModifyAsync(u =>
+							{
+								u.Mute = false;
+							});
+						}
+					}
+				});
+
+				return Task.CompletedTask;
+			};
+			_client.MessageReceived += (msg) =>
+			{
+				Task.Run(async () =>
+				{
+					RedisUtility utility = new RedisUtility(RedisDb);
+					var channel = msg.Channel as SocketGuildChannel;
+					if (await utility.DbExistsAsync<BlackList>($"{channel.Guild.Id}:{msg.Author.Id}"))
+					{
+						await msg.DeleteAsync();
+					}
+				});
+
+				return Task.CompletedTask;
 			};
 			_client.Ready += async () =>
 			{

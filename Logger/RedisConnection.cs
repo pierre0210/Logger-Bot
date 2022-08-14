@@ -9,29 +9,29 @@ using StackExchange.Redis;
 
 namespace Logger
 {
-    public sealed class RedisConnection
-    {
-        private static string _settingOption;
-        public readonly ConnectionMultiplexer multiplexer;
+	public sealed class RedisConnection
+	{
+		private static string _settingOption;
+		public readonly ConnectionMultiplexer multiplexer;
 
-        private static Lazy<RedisConnection> lazy = new Lazy<RedisConnection>(() => {
-            if (String.IsNullOrEmpty(_settingOption)) throw new InvalidOperationException("Please call Init() first.");
-            return new RedisConnection();
-        });
+		private static Lazy<RedisConnection> lazy = new Lazy<RedisConnection>(() => {
+			if (String.IsNullOrEmpty(_settingOption)) throw new InvalidOperationException("Please call Init() first.");
+			return new RedisConnection();
+		});
 
-        public static RedisConnection Instance
-        {
-            get { return lazy.Value; }
-        }
+		public static RedisConnection Instance
+		{
+			get { return lazy.Value; }
+		}
 
-        private RedisConnection()
-        {
-            multiplexer = ConnectionMultiplexer.Connect(_settingOption);
-        }
+		private RedisConnection()
+		{
+			multiplexer = ConnectionMultiplexer.Connect(_settingOption);
+		}
 
-        public static void Init(string settingOption)
-        {
-            _settingOption = settingOption;
-        }
-    }
+		public static void Init(string settingOption)
+		{
+			_settingOption = settingOption;
+		}
+	}
 }

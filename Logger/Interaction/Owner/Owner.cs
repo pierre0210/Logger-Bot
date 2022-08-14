@@ -2,6 +2,7 @@
 using Discord.Interactions;
 using Discord.WebSocket;
 using System.Threading;
+using Logger.Database.Table;
 
 namespace Logger.Interaction.Owner
 {
@@ -24,22 +25,41 @@ namespace Logger.Interaction.Owner
 			Program.isBotOn = false;
 		}
 
-		//[DefaultMemberPermissions(GuildPermission.Administrator)]
 		[RequireOwner]
 		[SlashCommand("ultmute", "ultimate mute command")]
 		public async Task UltMuteAsync(IGuildUser user, int minutes)
 		{
-			Program.BlackList.Add(user.Id);
+			RedisUtility utility = new RedisUtility(Program.RedisDb);
+			BlackList blackList = new BlackList();
+			blackList.UserId = user.Id;
+			blackList.ReleaseTime = DateTime.Now.AddMinutes(minutes);
+			if(user.VoiceChannel != null)
+			{
+				await user.ModifyAsync(u =>
+				{
+					u.Mute = true;
+				});
+			}
+			
+			if(!await utility.DbExistsAsync<BlackList>($"{user.GuildId}:{user.Id}"))
+			{
+				await utility.DbSetAsync($"{user.GuildId}:{user.Id}", blackList);
+			}
+			else
+			{
+				await utility.DbDelAsync<BlackList>($"{user.GuildId}:{user.Id}");
+				await utility.DbSetAsync($"{user.GuildId}:{user.Id}", blackList);
+			}
 			var post = new EmbedBuilder().WithColor(Color.DarkRed)
-				.WithDescription($"<@{user.Id}> 哈哈去新疆");
+				.WithDescription($"{user.Mention} 哈哈去新疆 `勞改時間：{minutes} 分鐘`");
 			await RespondAsync(text: "Muted", ephemeral: true);
 			await Context.Channel.SendMessageAsync(embed: post.Build());
-			_timer = new Timer(async x => await _unban(x, user.Id, Context), null, minutes * 60 * 1000, Timeout.Infinite);
+			_timer = new Timer(async x => await _unban(x, user, Context), null, minutes * 60 * 1000, Timeout.Infinite);
 		}
 
 		[RequireOwner]
 		[SlashCommand("embed", "create embed message")]
-		public async Task EmbedAsync(string title, string description, UInt32 color, bool isTimestamp, IUser user)
+		public async Task EmbedAsync(string title, string description, uint color, bool isTimestamp, IUser user)
 		{
 			var embed = new EmbedBuilder().WithTitle(title).WithDescription(description).WithColor(new Color(color))
 				.WithAuthor(user);
@@ -48,12 +68,24 @@ namespace Logger.Interaction.Owner
 			await Context.Channel.SendMessageAsync(embed: embed.Build());
 		}
 
-		private async Task _unban(object x, ulong userId, SocketInteractionContext context)
+		private async Task _unban(object x, IGuildUser user, SocketInteractionContext context)
 		{
+			if (user.VoiceChannel != null)
+			{
+				await user.ModifyAsync(u =>
+				{
+					u.Mute = false;
+				});
+			}
+			RedisUtility utility = new RedisUtility(Program.RedisDb);
+			if (await utility.DbExistsAsync<BlackList>($"{user.GuildId}:{user.Id}"))
+			{
+				await utility.DbDelAsync<BlackList>($"{user.GuildId}:{user.Id}");
+			}
+
 			var releasePost = new EmbedBuilder().WithColor(Color.DarkGreen)
-				.WithDescription($"<@{userId}> 出獄");
+				.WithDescription($"{user.Mention} 出獄");
 			await context.Channel.SendMessageAsync(embed: releasePost.Build());
-			Program.BlackList.Remove(userId);
 		}
 	}
 }
