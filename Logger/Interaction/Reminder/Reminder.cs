@@ -44,7 +44,9 @@ namespace Logger.Interaction.Reminder
 				if(!await utility.DbExistsAsync<Database.Table.Reminder>($"{Context.User.Id}:{index}")) break;
 			}
 			await utility.DbSetAsync($"{Context.User.Id}:{index}", reminder);
-			await RespondAsync($"提醒 **{Context.User.Username}** {content}");
+			EmbedBuilder RemindEmbed = new EmbedBuilder().WithColor(Color.DarkGreen).WithTimestamp(DateTime.Now)
+				.WithDescription($"提醒 **{Context.User.Username}** {content}");
+			await RespondAsync(embed: RemindEmbed.Build());
 			//TimerCallback callback = new TimerCallback(_todo);
 			_timer = new Timer(async x => await _todo(x, Context.User.Id, index), null, reminder.Duration * 1000, Timeout.Infinite);
 		}
