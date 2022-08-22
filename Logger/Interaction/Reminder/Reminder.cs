@@ -86,6 +86,34 @@ namespace Logger.Interaction.Reminder
 
 		[RequireOwner]
 		[DefaultMemberPermissions(GuildPermission.Administrator)]
+		[SlashCommand("list-all", "list all user's reminder")]
+		public async Task ListAllAsync()
+		{
+			RedisUtility utility = new RedisUtility(Program.RedisDb);
+			var allkeys = Program.RedisServer.Keys(pattern: $"{typeof(Database.Table.Reminder).FullName}:*:*");
+			string keyList = String.Empty;
+			foreach (var key in allkeys.Reverse())
+			{
+				string index = key.ToString().Split(":")[2]; // type:userId:index
+				var row = await utility.DbGetWithFullnameAsync<Database.Table.Reminder>(key.ToString());
+				keyList += $"<@{row.UserId}> `[{index}] {row.EndTime.ToString("g", DateTimeFormatInfo.InvariantInfo)} {row.Content}`\n";
+			}
+			if (keyList.Length > 0)
+			{
+				EmbedBuilder keyEmbed = new EmbedBuilder().WithColor(Color.DarkRed)
+					.WithDescription($"{keyList}").WithTimestamp(DateTime.Now);
+				await RespondAsync(embed: keyEmbed.Build());
+			}
+			else
+			{
+				EmbedBuilder keyEmbed = new EmbedBuilder().WithColor(Color.DarkRed)
+					.WithDescription("**Empty**").WithTimestamp(DateTime.Now);
+				await RespondAsync(embed: keyEmbed.Build(), ephemeral: true);
+			}
+		}
+
+		[RequireOwner]
+		[DefaultMemberPermissions(GuildPermission.Administrator)]
 		[SlashCommand("delete", "delete reminder")]
 		public async Task DelAsync(IUser target, [Summary(description: "編號 可用list-all指令查詢")]int index)
 		{
@@ -113,7 +141,7 @@ namespace Logger.Interaction.Reminder
 
 				if(channel != null)
 				{
-					var ResultEmbed = new EmbedBuilder().WithColor(Color.DarkRed).WithDescription(row.Content);
+					var ResultEmbed = new EmbedBuilder().WithColor(Color.DarkRed).WithDescription(row.Content).WithTimestamp(DateTime.Now);
 					await channel.SendMessageAsync(text: $"<@{userId}>", embed: ResultEmbed.Build());
 				}
 				
