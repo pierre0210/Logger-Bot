@@ -27,7 +27,7 @@ namespace Logger.Interaction.Owner
 
 		[RequireOwner]
 		[SlashCommand("ultmute", "ultimate mute command")]
-		public async Task UltMuteAsync(IGuildUser user, int minutes)
+		public async Task UltMuteAsync(IGuildUser user, int minutes, string place = "新疆")
 		{
 			RedisUtility utility = new RedisUtility(Program.RedisDb);
 			BlackList blackList = new BlackList();
@@ -51,7 +51,7 @@ namespace Logger.Interaction.Owner
 				await utility.DbSetAsync($"{user.GuildId}:{user.Id}", blackList);
 			}
 			var post = new EmbedBuilder().WithColor(Color.DarkRed)
-				.WithDescription($"{user.Mention} 哈哈去新疆 `勞改時間：{minutes} 分鐘`");
+				.WithDescription($"{user.Mention} 哈哈去{place} `勞改時間：{minutes} 分鐘`");
 			await RespondAsync(text: "Muted", ephemeral: true);
 			await Context.Channel.SendMessageAsync(embed: post.Build());
 			_timer = new Timer(async x => await _unban(x, user, Context), null, minutes * 60 * 1000, Timeout.Infinite);
