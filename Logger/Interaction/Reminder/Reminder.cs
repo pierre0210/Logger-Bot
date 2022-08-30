@@ -32,7 +32,7 @@ namespace Logger.Interaction.Reminder
 
 		[EnabledInDm(false)]
 		[SlashCommand("add", "add new reminder")]
-		public async Task AddAsync([Summary(description: "小時")]int hours, [Summary(description: "分鐘")]int minutes, string content)
+		public async Task AddAsync([Summary(description: "小時")]uint hours, [Summary(description: "分鐘")]uint minutes, string content)
 		{
 			RedisUtility utility = new RedisUtility(Program.RedisDb);
 			Database.Table.Reminder reminder = new Database.Table.Reminder();
