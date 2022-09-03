@@ -95,7 +95,7 @@ namespace Logger
 				Task.Run(async () => 
 				{
 					RedisUtility utility = new RedisUtility(RedisDb);
-					if (newState.VoiceChannel != null && newState.VoiceChannel != oldState.VoiceChannel)
+					if (newState.VoiceChannel != null && (newState.VoiceChannel != oldState.VoiceChannel || newState.IsMuted != oldState.IsMuted))
 					{
 						var guildUser = user as SocketGuildUser;
 						if (await utility.DbExistsAsync<BlackList>($"{guildUser.Guild.Id}:{user.Id}"))
