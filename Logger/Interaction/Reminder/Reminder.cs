@@ -50,7 +50,7 @@ namespace Logger.Interaction.Reminder
 			}
 			await utility.DbSetAsync($"{Context.User.Id}:{index}", reminder);
 			EmbedBuilder RemindEmbed = new EmbedBuilder().WithColor(Color.DarkGreen).WithTimestamp(DateTime.Now)
-				.WithDescription($"提醒 **{Context.User.Username}** {content}");
+				.WithDescription($"提醒 **{Context.User.Username}** {content}\n時間：`{reminder.EndTime}`");
 			await RespondAsync(embed: RemindEmbed.Build());
 			//TimerCallback callback = new TimerCallback(_todo);
 			_timer = new Timer(async x => await _todo(x, Context.User.Id, index), null, reminder.Duration * 1000, Timeout.Infinite);
